@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "D:\\projects\\rcs_angola\\iwa_server\\iwa_server.csproj": {}
+    "D:\\projects\\rcs_angola\\agent_infra_watch\\iwa_server\\iwa_server.csproj": {}
   },
   "projects": {
-    "D:\\projects\\rcs_angola\\iwa_server\\iwa_server.csproj": {
+    "D:\\projects\\rcs_angola\\agent_infra_watch\\iwa_server\\iwa_server.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\projects\\rcs_angola\\iwa_server\\iwa_server.csproj",
+        "projectUniqueName": "D:\\projects\\rcs_angola\\agent_infra_watch\\iwa_server\\iwa_server.csproj",
         "projectName": "iwa_server",
-        "projectPath": "D:\\projects\\rcs_angola\\iwa_server\\iwa_server.csproj",
+        "projectPath": "D:\\projects\\rcs_angola\\agent_infra_watch\\iwa_server\\iwa_server.csproj",
         "packagesPath": "C:\\Users\\Mendez\\.nuget\\packages\\",
-        "outputPath": "D:\\projects\\rcs_angola\\iwa_server\\obj\\",
+        "outputPath": "D:\\projects\\rcs_angola\\agent_infra_watch\\iwa_server\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

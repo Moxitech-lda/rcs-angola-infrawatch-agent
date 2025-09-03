@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "7OHv6CuqhAA=",
+  "dgSpecHash": "aKcZQzgjJo4=",
   "success": true,
-  "projectFilePath": "D:\\projects\\rcs_angola\\iwa_server\\iwa_server.csproj",
+  "projectFilePath": "D:\\projects\\rcs_angola\\agent_infra_watch\\iwa_server\\iwa_server.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Mendez\\.nuget\\packages\\microsoft.data.sqlite\\9.0.8\\microsoft.data.sqlite.9.0.8.nupkg.sha512",
     "C:\\Users\\Mendez\\.nuget\\packages\\microsoft.data.sqlite.core\\9.0.8\\microsoft.data.sqlite.core.9.0.8.nupkg.sha512",

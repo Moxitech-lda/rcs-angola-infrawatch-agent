@@ -2,11 +2,12 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:agent_infra_watch/app/machine_dao.dart';
 
-enum TipoMonitoramento { ping, wmi }
+enum TipoMonitoramento { ping, snmp }
 
 class MaquinaMonitorada {
   final String id;
   final bool? ativo;
+  final bool sync;
   final String nome;
   final String ip;
   final TipoMonitoramento tipoMonitoramento;
@@ -20,6 +21,7 @@ class MaquinaMonitorada {
 
   MaquinaMonitorada({
     this.ativo,
+    required this.sync,
     required this.id,
     required this.nome,
     required this.tipoDispositivo,
@@ -35,6 +37,7 @@ class MaquinaMonitorada {
 
   Machine toMachine() {
     return Machine(
+      syncronized: sync,
       id: id,
       nome: nome,
       ip: ip,
@@ -46,6 +49,7 @@ class MaquinaMonitorada {
 
   factory MaquinaMonitorada.fromMachine(Machine value) {
     return MaquinaMonitorada(
+      sync: value.syncronized,
       ativo: value.ativo,
       id: value.id,
       nome: value.nome,
@@ -63,12 +67,13 @@ class MaquinaMonitorada {
 
   factory MaquinaMonitorada.fromJson(Map<String, dynamic> json) {
     return MaquinaMonitorada(
-      id: json['id'] ?? 0,
+      sync: json['sync'] ?? false,
+      id: json['id'] ?? '0',
       nome: json['nome'] ?? '',
       ip: json['ip'] ?? '',
       tipoMonitoramento: json['tipoMonitoramento'] == 'PING'
           ? TipoMonitoramento.ping
-          : TipoMonitoramento.wmi,
+          : TipoMonitoramento.snmp,
       tipoDispositivo: json['tipoDispositivo'] ?? '',
       status: json['status'] ?? 'Desconhecido',
       perda: (json['perda'] ?? 0).toDouble(),

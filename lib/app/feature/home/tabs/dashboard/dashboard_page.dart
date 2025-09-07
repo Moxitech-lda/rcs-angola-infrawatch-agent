@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:agent_infra_watch/app/app.dart';
+import 'package:agent_infra_watch/app/feature/home/tabs/dashboard/dashboard_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:agent_infra_watch/app/api_server.dart';
 import 'package:agent_infra_watch/app/feature/home/home_page.dart';
@@ -11,10 +13,6 @@ import 'package:agent_infra_watch/app/machine_dao.dart';
 import 'package:agent_infra_watch/main.dart';
 import 'package:agent_infra_watch/system.dart';
 
-// ignore: non_constant_identifier_names
-bool IsRuning = false;
-bool communicationServer = false;
-
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
 
@@ -22,37 +20,44 @@ class DashboardPage extends StatefulWidget {
   State<DashboardPage> createState() => _DashboardPageState();
 }
 
-final tiposDispositivo = [
-  "PC",
-  "Switch",
-  "AccessPoint",
-  "Router",
-  "Impressora",
-  "Servidor",
-  "Smartphone/Tablet",
-];
-
 class _DashboardPageState extends State<DashboardPage> {
+  final controller = DashboardController();
+
   Widget _getIcon(String value) {
-    final icons = [
-      SvgRender(Resource().getSvgIcon('icons8_computer')),
-      SvgRender(Resource().getSvgIcon('icons8_switch')),
-      SvgRender(Resource().getSvgIcon('icons8_pointer')),
-      SvgRender(Resource().getSvgIcon('icons8_wi-fi_router')),
-      SvgRender(Resource().getSvgIcon('icons8_print')),
-      SvgRender(Resource().getSvgIcon('icons8_server')),
-      SvgRender(Resource().getSvgIcon('icons8_smartphone_tablet')),
-    ];
-    return icons[tiposDispositivo.indexOf(value)];
+    final icons = {
+      'cbe721b2-2ae1-4213-b175-7237abf05143': SvgRender(
+        Resource().getSvgIcon('icons8_smartphone_tablet'),
+      ),
+      '9592b85d-e855-44cb-936c-46310e2e4ce7': SvgRender(
+        Resource().getSvgIcon('icons8_computer'),
+      ),
+      '875d1196-1055-4fd0-861c-0dfaf85182f5': SvgRender(
+        Resource().getSvgIcon('icons8_switch'),
+      ),
+      'e667a298-50ed-414c-b7bc-7e38c7363630': SvgRender(
+        Resource().getSvgIcon('icons8_pointer'),
+      ),
+      'f59c56e3-dd7d-4adb-a237-a5096d16a61d': SvgRender(
+        Resource().getSvgIcon('icons8_wi-fi_router'),
+      ),
+      '53dde644-6e3e-4b29-9662-bf86cd825617': SvgRender(
+        Resource().getSvgIcon('icons8_print'),
+      ),
+      '7dca9692-479f-49ad-af8d-d4dbd43ed0c9': SvgRender(
+        Resource().getSvgIcon('icons8_server'),
+      ),
+      'da87b9ce-43bf-4283-9431-3b9a58d31c41': Icon(Icons.apps),
+    };
+    return icons[value]!;
   }
 
-  Widget _buildPingWmi(MaquinaMonitorada value, bool first, bool last) {
+  Widget _buildPingSNMP(MaquinaMonitorada value, bool first, bool last) {
     return Row(
       spacing: 10,
       children: [
-        value.ativo == null
+        IsRuning
             ? BlinkingCircle(active: IsRuning)
-            : BlinkingCircle(active: value.ativo!, cintila: false),
+            : BlinkingCircle(active: value.sync, cintila: false),
 
         _getIcon(value.tipoDispositivo),
         Expanded(
@@ -61,7 +66,7 @@ class _DashboardPageState extends State<DashboardPage> {
         Expanded(child: Text(value.ip, overflow: TextOverflow.ellipsis)),
         Expanded(
           child: Text(
-            value.tipoMonitoramento == TipoMonitoramento.ping ? 'PING' : 'WMI',
+            value.tipoMonitoramento == TipoMonitoramento.ping ? 'PING' : 'SNMP',
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
@@ -111,7 +116,8 @@ class _DashboardPageState extends State<DashboardPage> {
           icon: Icon(Icons.more_vert_outlined),
           onSelected: (op) {
             if (op == 0) {
-              showMachineFormModal(context, machine: value.toMachine());
+              re();
+              // showMachineFormModal(context, machine: value.toMachine());
             }
             if (op == 1) {
               showConfirmationDialog(
@@ -136,15 +142,19 @@ class _DashboardPageState extends State<DashboardPage> {
     return Row(
       spacing: 10,
       children: [
-        value.ativo == null
+        IsRuning
             ? BlinkingCircle(active: IsRuning)
-            : BlinkingCircle(active: value.ativo!, cintila: false),
+            : BlinkingCircle(active: value.sync, cintila: false),
         _getIcon(value.tipoDispositivo),
-        Expanded(child: Text(value.nome, maxLines: 1)),
-        Expanded(child: Text(value.ip, overflow: TextOverflow.ellipsis)),
+        Expanded(
+          child: Text(value.nome, maxLines: 1, overflow: TextOverflow.ellipsis),
+        ),
+        Expanded(
+          child: Text(value.ip, maxLines: 1, overflow: TextOverflow.ellipsis),
+        ),
         Expanded(
           child: Text(
-            value.tipoMonitoramento == TipoMonitoramento.ping ? 'PING' : 'WMI',
+            value.tipoMonitoramento == TipoMonitoramento.ping ? 'PING' : 'SNMP',
 
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
@@ -205,57 +215,57 @@ class _DashboardPageState extends State<DashboardPage> {
     );
   }
 
-  final api = ApiService();
-  final dao = MachineDAO();
-  bool bancoVazio = false;
-  bool firstLoad = true;
-
-  late Timer _timer;
-  List<MaquinaMonitorada> maquinas = [];
+  Future<void> re() async {
+    final res = await sendMetric(context);
+    print(res);
+  }
 
   @override
   void initState() {
     super.initState();
-    _loadMetrics(true);
-    _timer = Timer.periodic(
+    loadMetrics(true);
+
+    controller.timer = Timer.periodic(
       const Duration(seconds: 1),
-      (t) => _loadMetrics(false),
+      (t) => loadMetrics(false),
     );
   }
 
-  void _loadMetrics(bool firstLoad) async {
-    this.firstLoad = firstLoad;
+  @override
+  void dispose() {
+    controller.timer.cancel();
+    super.dispose();
+  }
+
+  void loadMetrics(bool firstLoad) async {
+    controller.firstLoad = firstLoad;
     try {
-      final data = await api.fetchMetrics();
-      communicationServer = await api.fetchStatus();
+      final data = await controller.api.fetchMetrics();
+      communicationServer = await controller.api.fetchStatus();
       IsRuning = true;
-      bancoVazio = false;
+      controller.bancoVazio = false;
       if (mounted) {
         setState(() {
-          maquinas = data;
+          controller.maquinas = data;
         });
       }
     } catch (e) {
       IsRuning = false;
-      final data = await dao.getAll();
-      bancoVazio = data.isEmpty;
+      final data = await controller.dao.getAll();
+      controller.bancoVazio = data.isEmpty;
       if (mounted) {
         setState(() {
-          maquinas = data.map((e) => MaquinaMonitorada.fromMachine(e)).toList();
+          controller.maquinas = data
+              .map((e) => MaquinaMonitorada.fromMachine(e))
+              .toList();
         });
       }
     }
   }
 
   @override
-  void dispose() {
-    _timer.cancel();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return firstLoad
+    return controller.firstLoad
         ? Container(
             color: Theme.of(context).colorScheme.scrim.withAlpha(200),
 
@@ -269,6 +279,17 @@ class _DashboardPageState extends State<DashboardPage> {
               automaticallyImplyLeading: false,
               title: Text('Hosts'),
               actions: [
+                if (syncManager.isSyncRunning)
+                  Blinking(
+                    child: Row(
+                      spacing: 10,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text('sincronizando', style: TextStyle(fontSize: 12)),
+                        Icon(Icons.sync),
+                      ],
+                    ),
+                  ),
                 IconButton(
                   tooltip: 'Comunicação com servidor',
                   onPressed: () {},
@@ -297,7 +318,7 @@ class _DashboardPageState extends State<DashboardPage> {
                     }
                   },
                 ),
-                if (!bancoVazio)
+                if (!controller.bancoVazio)
                   IsRuning
                       ? AsyncIconButton(
                           tooltip: 'Parar monitoramento',
@@ -326,7 +347,7 @@ class _DashboardPageState extends State<DashboardPage> {
               ],
             ),
 
-            body: bancoVazio
+            body: controller.bancoVazio
                 ? Center(
                     child: Column(
                       spacing: 20,
@@ -362,7 +383,7 @@ class _DashboardPageState extends State<DashboardPage> {
                           ),
                           child: Column(
                             spacing: 10,
-                            children: maquinas
+                            children: controller.maquinas
                                 .asMap()
                                 .entries
                                 .map(
@@ -372,12 +393,12 @@ class _DashboardPageState extends State<DashboardPage> {
                                       ? _buildPingPing(
                                           e.value,
                                           e.key == 0,
-                                          e.key == maquinas.length,
+                                          e.key == controller.maquinas.length,
                                         )
-                                      : _buildPingWmi(
+                                      : _buildPingSNMP(
                                           e.value,
                                           e.key == 0,
-                                          e.key == maquinas.length,
+                                          e.key == controller.maquinas.length,
                                         ),
                                 )
                                 .toList(),
@@ -464,6 +485,52 @@ class _BlinkingCircleState extends State<BlinkingCircle>
                 shape: BoxShape.circle,
               ),
             ),
+    );
+  }
+}
+
+class Blinking extends StatefulWidget {
+  const Blinking({super.key, required this.child});
+  final Widget child;
+  @override
+  State<Blinking> createState() => _BlinkingState();
+}
+
+class _BlinkingState extends State<Blinking>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _animation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 1),
+    )..repeat(reverse: true);
+
+    _animation = Tween<double>(
+      begin: 0.1,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: AnimatedBuilder(
+        animation: _animation,
+        builder: (context, child) {
+          return Opacity(opacity: _animation.value, child: child);
+        },
+        child: widget.child,
+      ),
     );
   }
 }

@@ -1,6 +1,6 @@
 namespace IWAServer.Models
 {
-    public enum TipoMonitoramento { PING, WMI }
+    public enum TipoMonitoramento { PING, snmp }
     // public enum TipoDispositivo { PC, Switch, AccessPoint, Router, Impressora, Servidor, phone }
 
     public class Machine

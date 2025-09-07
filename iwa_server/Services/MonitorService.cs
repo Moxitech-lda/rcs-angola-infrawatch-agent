@@ -113,7 +113,7 @@ namespace IWAServer.Services
                 result.DiskPercent = -1;
             }
 
-            else if (machine.TipoMonitoramento == TipoMonitoramento.WMI)
+            else if (machine.TipoMonitoramento == TipoMonitoramento.snmp)
             {
                 try
                 {

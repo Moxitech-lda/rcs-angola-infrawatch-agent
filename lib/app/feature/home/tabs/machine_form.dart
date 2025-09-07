@@ -1,8 +1,7 @@
+import 'package:agent_infra_watch/main.dart';
 import 'package:flutter/material.dart';
 import 'package:agent_infra_watch/app/api_server.dart';
 import 'package:agent_infra_watch/app/feature/config/config_page.dart';
-import 'package:agent_infra_watch/app/feature/home/tabs/dashboard_page.dart';
-import 'package:agent_infra_watch/app/feature/usefull.dart';
 import 'package:agent_infra_watch/app/inputs_widgets.dart';
 import 'package:agent_infra_watch/app/machine_dao.dart';
 import 'package:uuid/uuid.dart';
@@ -35,12 +34,12 @@ class _MachineFormState extends State<MachineForm> {
   final _senhaController = TextEditingController();
 
   int _tipoMonitoramento = 0;
-  late String _tipoDispositivo = tiposDispositivo[0];
+  late String _tipoDispositivo = tiposDispositivo[0].id;
   bool _ativo = true;
 
   final tiposMonitoramento = [
     0, // "PING",
-    1, //  "WMI"
+    1, //  "SNMP"
   ];
 
   @override
@@ -52,7 +51,10 @@ class _MachineFormState extends State<MachineForm> {
       _usuarioController.text = widget.machine!.usuario ?? "";
       _senhaController.text = widget.machine!.senha ?? "";
       _tipoMonitoramento = widget.machine!.tipoMonitoramento.index;
-      _tipoDispositivo = widget.machine!.tipoDispositivo;
+      _tipoDispositivo = tiposDispositivo
+          .where((e) => e.id == widget.machine!.tipoDispositivo)
+          .first
+          .id;
       _ativo = widget.machine!.ativo;
     }
   }
@@ -60,48 +62,39 @@ class _MachineFormState extends State<MachineForm> {
   Future<void> _salvar() async {
     if (!_formKey.currentState!.validate()) return;
 
-    await showConfirmationDialog(
-      context: context,
-      message: widget.machine == null
-          ? 'Adicionar o host: ${_nomeController.text}'
-          : 'Editar o host: ${_nomeController.text}',
-      onConfirm: () async {
-        final dao = MachineDAO();
+    final dao = MachineDAO();
 
-        if (widget.machine == null) {
-          final maquina = Machine(
-            id: Uuid().v4(),
-            nome: _nomeController.text,
-            ip: _ipController.text,
-            usuario: _usuarioController.text.isEmpty
-                ? null
-                : _usuarioController.text,
-            senha: _senhaController.text.isEmpty ? null : _senhaController.text,
-            tipoMonitoramento: TipoMonitoramento.values[_tipoMonitoramento],
-            ativo: _ativo,
-            tipoDispositivo: _tipoDispositivo,
-          );
-          await dao.insert(maquina, context);
-        } else {
-          final maquina = Machine(
-            id: widget.machine!.id,
-            nome: _nomeController.text,
-            ip: _ipController.text,
-            usuario: _usuarioController.text.isEmpty
-                ? null
-                : _usuarioController.text,
-            senha: _senhaController.text.isEmpty ? null : _senhaController.text,
-            tipoMonitoramento: TipoMonitoramento.values[_tipoMonitoramento],
-            ativo: _ativo,
-            tipoDispositivo: _tipoDispositivo,
-          );
-
-          await dao.update(maquina);
-        }
-
-        if (mounted) Navigator.pop(context);
-      },
-    );
+    if (widget.machine == null) {
+      final maquina = Machine(
+        syncronized: false,
+        id: Uuid().v4(),
+        nome: _nomeController.text,
+        ip: _ipController.text,
+        usuario: _usuarioController.text.isEmpty
+            ? null
+            : _usuarioController.text,
+        senha: _senhaController.text.isEmpty ? null : _senhaController.text,
+        tipoMonitoramento: TipoMonitoramento.values[_tipoMonitoramento],
+        ativo: _ativo,
+        tipoDispositivo: _tipoDispositivo,
+      );
+      await dao.insert(maquina, context);
+    } else {
+      final maquina = Machine(
+        id: widget.machine!.id,
+        syncronized: widget.machine!.syncronized,
+        nome: _nomeController.text,
+        ip: _ipController.text,
+        usuario: _usuarioController.text.isEmpty
+            ? null
+            : _usuarioController.text,
+        senha: _senhaController.text.isEmpty ? null : _senhaController.text,
+        tipoMonitoramento: TipoMonitoramento.values[_tipoMonitoramento],
+        ativo: _ativo,
+        tipoDispositivo: _tipoDispositivo,
+      );
+      await dao.update(maquina, context);
+    }
   }
 
   @override
@@ -164,7 +157,7 @@ class _MachineFormState extends State<MachineForm> {
                         .map(
                           (t) => CustomComboBoxItemModel(
                             value: t,
-                            label: t == 0 ? 'PING' : 'WMI',
+                            label: t == 0 ? 'PING' : 'SNMP',
                           ),
                         )
                         .toList(),
@@ -176,7 +169,12 @@ class _MachineFormState extends State<MachineForm> {
                     hintText: "Tipo de Dispositivo",
                     constraints: constraints,
                     items: tiposDispositivo
-                        .map((t) => CustomComboBoxItemModel(value: t, label: t))
+                        .map(
+                          (t) => CustomComboBoxItemModel(
+                            value: t.id,
+                            label: t.value,
+                          ),
+                        )
                         .toList(),
                     onChanged: (v) => setState(() => _tipoDispositivo = v!),
                   ),

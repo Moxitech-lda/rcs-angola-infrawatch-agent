@@ -1,3 +1,4 @@
+import 'package:agent_infra_watch/app/machine_dao.dart';
 import 'package:flutter/material.dart';
 import 'package:agent_infra_watch/app/app.dart';
 import 'package:agent_infra_watch/app/config_dao.dart';
@@ -53,11 +54,15 @@ class SvgRender extends StatelessWidget {
   }
 }
 
+List<Types> tiposDispositivo = [];
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   InfraWatchFileSystem.ensureStructure();
   databaseFactory = databaseFactoryFfi;
   sqfliteFfiInit();
   final tokem = await ConfigDAO().getConfig('token');
+  tiposDispositivo = await TypesDAO().getAll();
+
   runApp(MyApp(tokem: tokem));
 }

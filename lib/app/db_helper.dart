@@ -29,6 +29,7 @@ class DBHelper {
         Senha TEXT,
         TipoMonitoramento INTEGER NOT NULL,
         Ativo INTEGER NOT NULL,
+        Syncronized INTEGER NOT NULL,
         TipoDispositivo TEXT NOT NULL
       )
     ''');
@@ -36,6 +37,13 @@ class DBHelper {
     await db.execute('''
       CREATE TABLE Configs (
         Key TEXT PRIMARY KEY,
+        Value TEXT
+      )
+    ''');
+
+    await db.execute('''
+      CREATE TABLE Types (
+        Id TEXT PRIMARY KEY,
         Value TEXT
       )
     ''');

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:agent_infra_watch/app/feature/home/tabs/config/conifig_page.dart';
-import 'package:agent_infra_watch/app/feature/home/tabs/dashboard_page.dart';
+import 'package:agent_infra_watch/app/feature/home/tabs/dashboard/dashboard_page.dart';
 
 // ignore: non_constant_identifier_names
 ValueNotifier<bool> IsLoading = ValueNotifier(false);

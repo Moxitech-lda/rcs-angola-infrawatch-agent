@@ -30,13 +30,13 @@ class AgentController {
     try {
       final exePath =
           // r'D:/projects/rcs_angola/iwa_server/bin/Debug/net9.0/iwa_server.exe';
-          path.join(Directory.current.path, 'iwa_server.exe');
+          path.join(Directory.current.path, 'iwa_server/bin/Debug/net9.0/iwa_server.exe');
 
       // if (!File(exePath).existsSync()) {
       //   throw "Arquivo iwa-server.exe não encontrado em ${Directory.current.path}";
       // }
 
-      await Process.start('cmd', ['/c', 'start', exePath], runInShell: true);
+      await Process.start('start', ['', exePath], runInShell: true);
     } catch (e) {
       if (context.mounted) {
         await showAgentResultDialog(context, "Erro ao iniciar agente: $e");

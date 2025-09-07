@@ -45,7 +45,7 @@ namespace IWAServer.Services
                         if (m.TipoMonitoramento == TipoMonitoramento.PING)
                             Logger.Info($"[{m.Nome}] Tipo: PING, Status={metrics.Status}, Perda={metrics.PerdaPacotes:F1}%, Latência={metrics.PingMs:F1}ms");
                         else
-                            Logger.Info($"[{m.Nome}] Tipo: WMI, Status={metrics.Status}, CPU={metrics.CpuPercent:F1}%, RAM={metrics.RamPercent:F1}%, Disk={metrics.DiskPercent:F1}%");
+                            Logger.Info($"[{m.Nome}] Tipo: SNMP, Status={metrics.Status}, CPU={metrics.CpuPercent:F1}%, RAM={metrics.RamPercent:F1}%, Disk={metrics.DiskPercent:F1}%");
 
                     }
                 }

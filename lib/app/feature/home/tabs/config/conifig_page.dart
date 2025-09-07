@@ -116,6 +116,27 @@ class _ConifigPageState extends State<ConifigPage> {
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 30,
                               ),
+                              child: Text('ID da companinha'),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 30,
+                              ),
+                              child: SizedBox(
+                                child: CustomTextBox(
+                                  readOnly: true,
+                                  keyboardType: TextInputType.number,
+                                  controller: controller.controller3,
+                                  constraints: constraints,
+                                  hintText: 'Código do agente',
+                                ),
+                              ),
+                            ),
+
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 30,
+                              ),
                               child: Text(
                                 'Por favor insira tempo para checagem periódica dos hosts em segundos. Insirá apenas caracteres numéricos',
                               ),
@@ -144,12 +165,13 @@ class _ConifigPageState extends State<ConifigPage> {
                                     return null;
                                   },
                                   keyboardType: TextInputType.number,
-                                  controller: controller.controller3,
+                                  controller: controller.controller4,
                                   constraints: constraints,
                                   hintText: 'Tempo',
                                 ),
                               ),
                             ),
+
                             Padding(
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 30,

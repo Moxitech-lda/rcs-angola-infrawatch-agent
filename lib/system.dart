@@ -45,3 +45,4 @@ Esta pasta é usada pelo agente de monitoramento InfraWatch para armazenar:
     } catch (e) {}
   }
 }
+//INFRAOBUGM19

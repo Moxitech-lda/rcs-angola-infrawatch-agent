@@ -51,173 +51,445 @@ class _DashboardPageState extends State<DashboardPage> {
     return icons[value]!;
   }
 
-  Widget _buildPingSNMP(MaquinaMonitorada value, bool first, bool last) {
-    return Row(
-      spacing: 10,
-      children: [
-        IsRuning
-            ? BlinkingCircle(active: IsRuning)
-            : BlinkingCircle(active: value.sync, cintila: false),
-
-        _getIcon(value.tipoDispositivo),
-        Expanded(
-          child: Text(value.nome, maxLines: 1, overflow: TextOverflow.ellipsis),
-        ),
-        Expanded(child: Text(value.ip, overflow: TextOverflow.ellipsis)),
-        Expanded(
-          child: Text(
-            value.tipoMonitoramento == TipoMonitoramento.ping ? 'PING' : 'SNMP',
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ),
-        Expanded(
-          child: Text(
-            value.cpuPercent < 0 || value.status != 'Online'
-                ? 'CPU: --'
-                : 'CPU: ${value.cpuPercent.toStringAsFixed(1)}%',
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ),
-        Expanded(
-          child: Text(
-            value.ramPercent < 0 || value.status != 'Online'
-                ? 'RAM: --'
-                : 'RAM: ${value.ramPercent.toStringAsFixed(1)}%',
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ),
-        Expanded(
-          child: Text(
-            value.diskPercent < 0 || value.status != 'Online'
-                ? 'DSK: --'
-                : 'DSK: ${value.diskPercent.toStringAsFixed(1)}%',
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
+  Widget _insidView(
+    String label,
+    String value, [
+    String? symbl,
+    bool max = true,
+  ]) {
+    return Expanded(
+      child: Container(
+        padding: EdgeInsets.all(5),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(5),
+          border: Border.all(width: .1, color: Colors.white.withAlpha(50)),
         ),
 
-        Text(
-          value.status,
-          textAlign: TextAlign.right,
-          maxLines: 1,
-          style: TextStyle(
-            color: !IsRuning
-                ? null
-                : value.status == 'Online'
-                ? Colors.green
-                : Colors.red,
-          ),
-        ),
-        PopupMenuButton<int>(
-          tooltip: 'Mais opções',
-          icon: Icon(Icons.more_vert_outlined),
-          onSelected: (op) {
-            if (op == 0) {
-              re();
-              // showMachineFormModal(context, machine: value.toMachine());
-            }
-            if (op == 1) {
-              showConfirmationDialog(
-                context: context,
-                message: 'Eliminar o host: ${value.nome}',
-                onConfirm: () {
-                  MachineDAO().delete(value.id);
-                },
-              );
-            }
-          },
-          itemBuilder: (BuildContext context) => <PopupMenuEntry<int>>[
-            const PopupMenuItem<int>(value: 0, child: Text('Editar')),
-            const PopupMenuItem<int>(value: 1, child: Text('Eliminar')),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+
+          children: [
+            Text(
+              label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(fontSize: 12),
+            ),
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    value,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(fontSize: max ? 20 : 13),
+                  ),
+                ),
+                if (symbl != null)
+                  Text(
+                    symbl,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(fontSize: 10),
+                  ),
+              ],
+            ),
           ],
         ),
-      ],
+      ),
     );
   }
 
-  Widget _buildPingPing(MaquinaMonitorada value, bool first, bool last) {
-    return Row(
-      spacing: 10,
-      children: [
-        IsRuning
-            ? BlinkingCircle(active: IsRuning)
-            : BlinkingCircle(active: value.sync, cintila: false),
-        _getIcon(value.tipoDispositivo),
-        Expanded(
-          child: Text(value.nome, maxLines: 1, overflow: TextOverflow.ellipsis),
+  Widget _buildPingSNMP(MaquinaMonitorada value) {
+    return Container(
+      padding: EdgeInsets.fromLTRB(10, 10, 5, 10),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(5),
+        border: Border.all(
+          width: .1,
+          color: Theme.of(context).primaryColor.withAlpha(200),
         ),
-        Expanded(
-          child: Text(value.ip, maxLines: 1, overflow: TextOverflow.ellipsis),
-        ),
-        Expanded(
-          child: Text(
-            value.tipoMonitoramento == TipoMonitoramento.ping ? 'PING' : 'SNMP',
+        color: Colors.white.withAlpha(20),
+      ),
+      child: Center(
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            spacing: 5,
+            children: [
+              Row(
+                spacing: 10,
+                children: [
+                  _getIcon(value.tipoDispositivo),
+                  Expanded(
+                    child: Text(
+                      value.nome,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ),
+                  PopupMenuButton<int>(
+                    tooltip: 'Mais opções',
+                    icon: Icon(Icons.more_vert_outlined),
+                    onSelected: (op) {
+                      if (op == 0) {
+                        showMachineFormModal(
+                          context,
+                          machine: value.toMachine(),
+                        );
+                      }
+                      if (op == 1) {
+                        showConfirmationDialog(
+                          context: context,
+                          message: 'Eliminar o host: ${value.nome}',
+                          onConfirm: () {
+                            MachineDAO().delete(value.id);
+                          },
+                        );
+                      }
+                    },
+                    itemBuilder: (BuildContext context) =>
+                        <PopupMenuEntry<int>>[
+                          const PopupMenuItem<int>(
+                            value: 0,
+                            child: Text('Editar'),
+                          ),
+                          const PopupMenuItem<int>(
+                            value: 1,
+                            child: Text('Eliminar'),
+                          ),
+                        ],
+                  ),
+                ],
+              ),
+              Padding(
+                padding: const EdgeInsets.only(right: 5),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  spacing: 5,
+                  children: [
+                    Row(
+                      spacing: 10,
+                      children: [
+                        Text(
+                          'Target',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        Expanded(
+                          child: Text(
+                            value.ip,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            textAlign: TextAlign.right,
+                          ),
+                        ),
+                        BlinkingCircle(
+                          active: IsRuning,
+                          syncr: value.sync,
+                          size: 8,
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 10),
 
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ),
-        Expanded(
-          child: Text(
-            value.status != 'Online' ? 'LAT: --' : 'LAT: ${value.pingMs} ms',
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ),
-        Expanded(
-          child: Text(
-            value.status != 'Online'
-                ? 'PRD: --'
-                : 'PRD: ${value.perda.toInt()}',
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ),
-        Expanded(child: Text('', maxLines: 1, overflow: TextOverflow.ellipsis)),
-        Text(
-          value.status,
-          textAlign: TextAlign.right,
-          style: TextStyle(
-            color: !IsRuning
-                ? null
-                : value.status == 'Online'
-                ? Colors.green
-                : Colors.red,
-          ),
-        ),
+                    Row(
+                      spacing: 5,
+                      children: [
+                        Text(
+                          value.tipoMonitoramento == TipoMonitoramento.ping
+                              ? 'PING'
+                              : 'SNMP',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        Expanded(
+                          child: Text(
+                            value.status.toUpperCase(),
+                            textAlign: TextAlign.right,
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 20,
+                              color: !IsRuning
+                                  ? null
+                                  : value.status == 'up'
+                                  ? Colors.green
+                                  : Colors.red,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 2),
 
-        PopupMenuButton<int>(
-          tooltip: 'Mais opções',
-          icon: Icon(Icons.more_vert_outlined),
-          onSelected: (op) {
-            if (op == 0) {
-              showMachineFormModal(context, machine: value.toMachine());
-            }
-            if (op == 1) {
-              showConfirmationDialog(
-                context: context,
-                message: 'Eliminar o host: ${value.nome}',
-                onConfirm: () {
-                  MachineDAO().delete(value.id);
-                },
-              );
-            }
-          },
-          itemBuilder: (BuildContext context) => <PopupMenuEntry<int>>[
-            const PopupMenuItem<int>(value: 0, child: Text('Editar')),
-            const PopupMenuItem<int>(value: 1, child: Text('Eliminar')),
-          ],
+                    Row(
+                      spacing: 6,
+                      children: [
+                        _insidView(
+                          'CPU',
+                          '${value.cpuPercent.toInt() < 0 ? '--' : value.cpuPercent.toInt()}',
+                          '%',
+                        ),
+                        _insidView(
+                          'RAM',
+                          value.ramPercent.toInt() < 0
+                              ? '--'
+                              : value.ramPercent.toStringAsFixed(1),
+                          '%',
+                        ),
+                        // _insidView(
+                        //   'DISK',
+                        //   '${value.diskPercent.toInt() < 0 ? '--' : value.diskPercent.toInt()}',
+                        //   '%',
+                        // ),
+                      ],
+                    ),
+
+                    Row(
+                      spacing: 6,
+                      children: [
+                        _insidView(
+                          'Up Time',
+                          '${value.uptimePercent.toInt() < 0 ? '--' : value.uptimePercent.toInt()}',
+                          '%',
+                        ),
+                        _insidView(
+                          'Down Time',
+                          '${value.downtimeMinutes.toInt() < 0 ? '--' : value.downtimeMinutes.toInt()}',
+                          'min',
+                        ),
+                      ],
+                    ),
+                    Row(
+                      spacing: 6,
+                      children: [
+                        _insidView(
+                          'Última checagem',
+                          formatarDataRelativa(DateTime.parse(value.lastCheck)),
+                          'segundos',
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
-      ],
+      ),
     );
   }
 
-  Future<void> re() async {
-    final res = await sendMetric(context);
-    print(res);
+  Widget _buildPingPing(MaquinaMonitorada value) {
+    return Container(
+      padding: EdgeInsets.fromLTRB(10, 10, 5, 10),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(5),
+        border: Border.all(
+          width: .1,
+          color: Theme.of(context).primaryColor.withAlpha(200),
+        ),
+        color: Colors.white.withAlpha(20),
+      ),
+      child: Center(
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            spacing: 5,
+            children: [
+              Row(
+                spacing: 10,
+                children: [
+                  _getIcon(value.tipoDispositivo),
+                  Expanded(
+                    child: Text(
+                      value.nome,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ),
+                  PopupMenuButton<int>(
+                    tooltip: 'Mais opções',
+                    icon: Icon(Icons.more_vert_outlined),
+                    onSelected: (op) {
+                      if (op == 0) {
+                        showMachineFormModal(
+                          context,
+                          machine: value.toMachine(),
+                        );
+                      }
+                      if (op == 1) {
+                        showConfirmationDialog(
+                          context: context,
+                          message: 'Eliminar o host: ${value.nome}',
+                          onConfirm: () {
+                            MachineDAO().delete(value.id);
+                          },
+                        );
+                      }
+                    },
+                    itemBuilder: (BuildContext context) =>
+                        <PopupMenuEntry<int>>[
+                          const PopupMenuItem<int>(
+                            value: 0,
+                            child: Text('Editar'),
+                          ),
+                          const PopupMenuItem<int>(
+                            value: 1,
+                            child: Text('Eliminar'),
+                          ),
+                        ],
+                  ),
+                ],
+              ),
+              Padding(
+                padding: const EdgeInsets.only(right: 5),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  spacing: 5,
+                  children: [
+                    Row(
+                      spacing: 10,
+                      children: [
+                        Text(
+                          'Target',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        Expanded(
+                          child: Text(
+                            value.ip,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            textAlign: TextAlign.right,
+                          ),
+                        ),
+                        BlinkingCircle(
+                          active: IsRuning,
+                          syncr: value.sync,
+                          size: 8,
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 10),
+                    Row(
+                      spacing: 5,
+                      children: [
+                        Text(
+                          value.tipoMonitoramento == TipoMonitoramento.ping
+                              ? 'PING'
+                              : 'SNMP',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        Expanded(
+                          child: Text(
+                            value.status.toUpperCase(),
+                            textAlign: TextAlign.right,
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 20,
+                              color: !IsRuning
+                                  ? null
+                                  : value.status == 'up'
+                                  ? Colors.green
+                                  : Colors.red,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 2),
+
+                    Row(
+                      spacing: 6,
+                      children: [
+                        _insidView(
+                          'Latência',
+                          '${value.latency.toInt() < 0 ? '--' : value.latency.toInt()}',
+                          'ms',
+                        ),
+                        _insidView(
+                          'P. Perdidos',
+                          '${value.packetLoss.toInt() < 0 ? '--' : value.packetLoss.toInt()}',
+                        ),
+                      ],
+                    ),
+
+                    Row(
+                      spacing: 6,
+                      children: [
+                        _insidView(
+                          'Up Time',
+                          '${value.uptimePercent.toInt() < 0 ? '--' : value.uptimePercent.toInt()}',
+                          '%',
+                        ),
+                        _insidView(
+                          'Down Time',
+                          '${value.downtimeMinutes.toInt() < 0 ? '--' : value.downtimeMinutes.toInt()}',
+                          'min',
+                        ),
+                      ],
+                    ),
+                    Row(
+                      spacing: 6,
+                      children: [
+                        _insidView(
+                          'Última checagem',
+                          formatarDataRelativa(DateTime.parse(value.lastCheck)),
+                          'segundos',
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  String formatarDataRelativa(DateTime data) {
+    final agora = DateTime.now();
+    final diferenca = agora.difference(data);
+
+    if (diferenca.inSeconds < 60) {
+      return '${diferenca.inSeconds}';
+    } else if (diferenca.inMinutes < 60) {
+      return 'há ${diferenca.inMinutes} minitos';
+    } else if (diferenca.inHours < 24 && data.day == agora.day) {
+      return 'há ${diferenca.inHours} h';
+    } else if (diferenca.inDays == 1) {
+      return 'ontem';
+    } else if (diferenca.inDays == 2) {
+      return 'antemontem';
+    } else if (diferenca.inDays < 7) {
+      return 'há ${diferenca.inDays} dias';
+    } else if (diferenca.inDays < 30) {
+      final semanas = (diferenca.inDays / 7).floor();
+      return 'há $semanas semana${semanas > 1 ? 's' : ''}';
+    } else if (diferenca.inDays < 365) {
+      final meses = (diferenca.inDays / 30).floor();
+      return 'há $meses mês${meses > 1 ? 'es' : ''}';
+    } else {
+      final anos = (diferenca.inDays / 365).floor();
+      return 'há $anos ano${anos > 1 ? 's' : ''}';
+    }
   }
 
   @override
@@ -242,6 +514,7 @@ class _DashboardPageState extends State<DashboardPage> {
     try {
       final data = await controller.api.fetchMetrics();
       communicationServer = await controller.api.fetchStatus();
+
       IsRuning = true;
       controller.bancoVazio = false;
       if (mounted) {
@@ -275,6 +548,7 @@ class _DashboardPageState extends State<DashboardPage> {
             backgroundColor: Theme.of(context).colorScheme.scrim.withAlpha(200),
 
             appBar: AppBar(
+              forceMaterialTransparency: true,
               backgroundColor: Colors.transparent,
               automaticallyImplyLeading: false,
               title: Text('Hosts'),
@@ -293,7 +567,7 @@ class _DashboardPageState extends State<DashboardPage> {
                 IconButton(
                   tooltip: 'Comunicação com servidor',
                   onPressed: () {},
-                  icon: BlinkingCircle(
+                  icon: BlinkingCircle1(
                     active: communicationServer && IsRuning,
                     size: 15,
                   ),
@@ -361,58 +635,150 @@ class _DashboardPageState extends State<DashboardPage> {
                   )
                 : IsLoading.value
                 ? Center(child: CircularProgressIndicator())
-                : SingleChildScrollView(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 15,
-                        vertical: 15,
+                : SizedBox(
+                    width: MediaQuery.of(context).size.width - 250,
+                    child: GridView.builder(
+                      padding: EdgeInsets.all(10),
+                      gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+                        maxCrossAxisExtent: 300, // largura máxima de cada item
+                        crossAxisSpacing: 10, // espaço horizontal
+                        mainAxisSpacing: 10, // espaço vertical
+                        childAspectRatio: .85, // proporção largura/altura
                       ),
-                      child: SizedBox(
-                        width: MediaQuery.of(context).size.width - 250,
-                        child: Container(
-                          padding: EdgeInsets.all(20),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(5),
-                            border: Border.all(
-                              width: .1,
-                              color: Theme.of(
-                                context,
-                              ).primaryColor.withAlpha(200),
-                            ),
-                            color: Colors.white.withAlpha(20),
-                          ),
-                          child: Column(
-                            spacing: 10,
-                            children: controller.maquinas
-                                .asMap()
-                                .entries
-                                .map(
-                                  (e) =>
-                                      e.value.tipoMonitoramento ==
-                                          TipoMonitoramento.ping
-                                      ? _buildPingPing(
-                                          e.value,
-                                          e.key == 0,
-                                          e.key == controller.maquinas.length,
-                                        )
-                                      : _buildPingSNMP(
-                                          e.value,
-                                          e.key == 0,
-                                          e.key == controller.maquinas.length,
-                                        ),
-                                )
-                                .toList(),
-                          ),
-                        ),
-                      ),
+                      itemCount: controller.maquinas.length,
+                      itemBuilder: (context, index) {
+                        return controller.maquinas[index].tipoMonitoramento ==
+                                TipoMonitoramento.ping
+                            ? _buildPingPing(controller.maquinas[index])
+                            : _buildPingSNMP(controller.maquinas[index]);
+                      },
                     ),
                   ),
           );
   }
 }
 
+//------------------------------------------------------------------------------
+
 class BlinkingCircle extends StatefulWidget {
   const BlinkingCircle({
+    super.key,
+    required this.active,
+    this.size,
+    required this.syncr,
+  });
+  final bool active;
+  final bool syncr;
+  final double? size;
+  @override
+  State<BlinkingCircle> createState() => _BlinkingCircleState();
+}
+
+class _BlinkingCircleState extends State<BlinkingCircle>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _animation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 1),
+    )..repeat(reverse: true);
+
+    _animation = Tween<double>(
+      begin: 0.2,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: widget.active
+          ? AnimatedBuilder(
+              animation: _animation,
+              builder: (context, child) {
+                return Opacity(opacity: _animation.value, child: child);
+              },
+              child: Container(
+                width: widget.size ?? 8,
+                height: widget.size ?? 8,
+                decoration: BoxDecoration(
+                  color: widget.syncr ? Colors.green : Colors.yellow,
+                  shape: BoxShape.circle,
+                ),
+              ),
+            )
+          : Container(
+              width: widget.size ?? 8,
+              height: widget.size ?? 8,
+              decoration: BoxDecoration(
+                color: Colors.red,
+                shape: BoxShape.circle,
+              ),
+            ),
+    );
+  }
+}
+
+//------------------------------------------------------------------------------
+class Blinking extends StatefulWidget {
+  const Blinking({super.key, required this.child});
+  final Widget child;
+  @override
+  State<Blinking> createState() => _BlinkingState();
+}
+
+class _BlinkingState extends State<Blinking>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _animation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 1),
+    )..repeat(reverse: true);
+
+    _animation = Tween<double>(
+      begin: 0.1,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: AnimatedBuilder(
+        animation: _animation,
+        builder: (context, child) {
+          return Opacity(opacity: _animation.value, child: child);
+        },
+        child: widget.child,
+      ),
+    );
+  }
+}
+//------------------------------------------------------------------------------
+
+class BlinkingCircle1 extends StatefulWidget {
+  const BlinkingCircle1({
     super.key,
     required this.active,
     this.size,
@@ -422,10 +788,10 @@ class BlinkingCircle extends StatefulWidget {
   final bool cintila;
   final double? size;
   @override
-  State<BlinkingCircle> createState() => _BlinkingCircleState();
+  State<BlinkingCircle1> createState() => _Blinking1CircleState();
 }
 
-class _BlinkingCircleState extends State<BlinkingCircle>
+class _Blinking1CircleState extends State<BlinkingCircle1>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _animation;
@@ -485,52 +851,6 @@ class _BlinkingCircleState extends State<BlinkingCircle>
                 shape: BoxShape.circle,
               ),
             ),
-    );
-  }
-}
-
-class Blinking extends StatefulWidget {
-  const Blinking({super.key, required this.child});
-  final Widget child;
-  @override
-  State<Blinking> createState() => _BlinkingState();
-}
-
-class _BlinkingState extends State<Blinking>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _animation;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 1),
-    )..repeat(reverse: true);
-
-    _animation = Tween<double>(
-      begin: 0.1,
-      end: 1.0,
-    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: AnimatedBuilder(
-        animation: _animation,
-        builder: (context, child) {
-          return Opacity(opacity: _animation.value, child: child);
-        },
-        child: widget.child,
-      ),
     );
   }
 }

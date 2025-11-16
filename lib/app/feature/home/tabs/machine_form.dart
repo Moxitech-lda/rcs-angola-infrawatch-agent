@@ -75,7 +75,7 @@ class _MachineFormState extends State<MachineForm> {
             : _usuarioController.text,
         senha: _senhaController.text.isEmpty ? null : _senhaController.text,
         tipoMonitoramento: TipoMonitoramento.values[_tipoMonitoramento],
-        ativo: _ativo,
+        ativo: true,
         tipoDispositivo: _tipoDispositivo,
       );
       await dao.insert(maquina, context);
@@ -90,7 +90,7 @@ class _MachineFormState extends State<MachineForm> {
             : _usuarioController.text,
         senha: _senhaController.text.isEmpty ? null : _senhaController.text,
         tipoMonitoramento: TipoMonitoramento.values[_tipoMonitoramento],
-        ativo: _ativo,
+        ativo: true,
         tipoDispositivo: _tipoDispositivo,
       );
       await dao.update(maquina, context);
@@ -138,17 +138,6 @@ class _MachineFormState extends State<MachineForm> {
                       return null;
                     },
                   ),
-                  CustomTextBox(
-                    constraints: constraints,
-                    controller: _usuarioController,
-                    hintText: "Usuário (opcional)",
-                  ),
-                  CustomTextBox(
-                    constraints: constraints,
-                    controller: _senhaController,
-                    hintText: "Senha (opcional)",
-                    obscureText: true,
-                  ),
                   CustomComboBox<int>(
                     value: _tipoMonitoramento,
                     hintText: "Tipo de Monitoramento",
@@ -178,11 +167,11 @@ class _MachineFormState extends State<MachineForm> {
                         .toList(),
                     onChanged: (v) => setState(() => _tipoDispositivo = v!),
                   ),
-                  SwitchListTile(
-                    title: const Text("Ativo"),
-                    value: _ativo,
-                    onChanged: (v) => setState(() => _ativo = v),
-                  ),
+                  // SwitchListTile(
+                  //   title: const Text("Ativo"),
+                  //   value: _ativo,
+                  //   onChanged: (v) => setState(() => _ativo = v),
+                  // ),
                   const SizedBox(height: 16),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,

@@ -31,6 +31,8 @@ class _ConifigPageState extends State<ConifigPage> {
           backgroundColor: Theme.of(context).colorScheme.scrim.withAlpha(200),
 
           appBar: AppBar(
+            forceMaterialTransparency: true,
+
             backgroundColor: Colors.transparent,
             automaticallyImplyLeading: false,
           ),

@@ -60,3 +60,6 @@ D:\projects\rcs_angola\agent_infra_watch\iwa_server\obj\Release\net9.0\refint\iw
 D:\projects\rcs_angola\agent_infra_watch\iwa_server\obj\Release\net9.0\iwa_server.pdb
 D:\projects\rcs_angola\agent_infra_watch\iwa_server\obj\Release\net9.0\iwa_server.genruntimeconfig.cache
 D:\projects\rcs_angola\agent_infra_watch\iwa_server\obj\Release\net9.0\ref\iwa_server.dll
+D:\projects\rcs_angola\agent_infra_watch\iwa_server\bin\Release\net9.0\CommunityToolkit.WinUI.Notifications.dll
+D:\projects\rcs_angola\agent_infra_watch\iwa_server\bin\Release\net9.0\Microsoft.Toolkit.Uwp.Notifications.dll
+D:\projects\rcs_angola\agent_infra_watch\iwa_server\bin\Release\net9.0\SnmpSharpNet.dll

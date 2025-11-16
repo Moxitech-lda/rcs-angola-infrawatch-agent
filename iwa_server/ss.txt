@@ -1,0 +1,14 @@
+
+// // ------------------- Código para minimizar o console -------------------
+// [DllImport("kernel32.dll")]
+// static extern IntPtr GetConsoleWindow();
+
+// [DllImport("user32.dll")]
+// static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
+
+// const int SW_MINIMIZE = 6;  // Minimizar na barra de tarefas
+// // const int SW_HIDE = 0;   // Para esconder completamente
+
+// var handle = GetConsoleWindow();
+// ShowWindow(handle, SW_MINIMIZE);  // ou SW_HIDE se quiser esconder totalmente
+// // ---------------------------------------------------------------------

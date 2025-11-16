@@ -23,8 +23,7 @@ Name: "desktopicon"; Description: "Criar atalho no Desktop"; GroupDescription: "
 Source: "build\windows\x64\runner\Release\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 ; C# Executáveis/DLLs
-Source: "iwa_server\bin\Release\net9.0\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
-
+Source: "iwa_server\bin\Debug\net9.0\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 [Icons]
 Name: "{group}\AgentInfraWatch"; Filename: "{app}\agent_infra_watch.exe"
 Name: "{userdesktop}\AgentInfraWatch"; Filename: "{app}\agent_infra_watch.exe"; Tasks: desktopicon

@@ -2,7 +2,9 @@
 using IWAServer.Models;
 using IWAServer.SendService;
 using IWAServer.Services;
-
+using System;
+using System.Runtime.InteropServices;
+//
 var builder = WebApplication.CreateBuilder(args);
 
 // Configura caminho do DB
@@ -20,7 +22,7 @@ var app = builder.Build();
 // Endpoints da API
 app.MapGet("/sendStatus", (MachineRepository repo) =>
 {
-    return true;//SendService.sendServerStatus;
+    return SendService.sendServerStatus;
 });
 
 app.MapGet("/metrics", (MetricsCache cache) =>

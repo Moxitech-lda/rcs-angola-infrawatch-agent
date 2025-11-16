@@ -12,6 +12,8 @@ namespace IWAServer.Models
         public string? Senha { get; set; }
         public TipoMonitoramento TipoMonitoramento { get; set; }
         public bool Ativo { get; set; }
+        public bool Syncronized { get; set; }
         public string TipoDispositivo { get; set; } = "";
     }
 }
+

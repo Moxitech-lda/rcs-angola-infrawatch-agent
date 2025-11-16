@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:math';
 
+import 'package:agent_infra_watch/main.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:agent_infra_watch/app/config_dao.dart';
@@ -43,6 +44,7 @@ class ConfigController {
 
     for (var e in resp) {
       await TypesDAO().setType(e.id, e.value);
+      tiposDispositivo.add(e);
     }
 
     Navigator.push(

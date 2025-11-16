@@ -21,13 +21,14 @@ namespace IWAServer.Data
             conn.Open();
 
             using var cmd = conn.CreateCommand();
-            cmd.CommandText = "SELECT Id, Nome, IP, Usuario, Senha, TipoMonitoramento, Ativo, TipoDispositivo FROM Machines;";
+            cmd.CommandText = "SELECT * FROM Machines;";
 
             using var reader = cmd.ExecuteReader();
             while (reader.Read())
             {
                 list.Add(new Machine
                 {
+
                     Id = reader.GetString(0),
                     Nome = reader.GetString(1),
                     IP = reader.GetString(2),
@@ -35,7 +36,8 @@ namespace IWAServer.Data
                     Senha = reader.IsDBNull(4) ? null : reader.GetString(4),
                     TipoMonitoramento = (TipoMonitoramento)Enum.Parse(typeof(TipoMonitoramento), reader.GetString(5)),
                     Ativo = reader.GetInt32(6) == 1,
-                    TipoDispositivo = reader.GetString(7)
+                    Syncronized = reader.GetInt32(7) == 1,
+                    TipoDispositivo = reader.GetString(8),
                 });
             }
 

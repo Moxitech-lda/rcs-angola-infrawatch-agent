@@ -61,8 +61,8 @@ void main() async {
   InfraWatchFileSystem.ensureStructure();
   databaseFactory = databaseFactoryFfi;
   sqfliteFfiInit();
-  final tokem = await ConfigDAO().getConfig('token');
-  tiposDispositivo = await TypesDAO().getAll();
+ final tokem = await ConfigDAO().getConfig('token');
+ tiposDispositivo = await TypesDAO().getAll();
 
   runApp(MyApp(tokem: tokem));
 }

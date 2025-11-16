@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Hosting;
 using IWAServer.Data;
 using IWAServer.Models;
+using IWAServer.SendService;
 
 namespace IWAServer.Services
 {
@@ -37,24 +38,37 @@ namespace IWAServer.Services
 
                     Logger.Info($"Coletando métricas de {machines.Count} máquinas.");
                     int index = 0;
-                    foreach (var m in machines.Where(x => x.Ativo))
+                    foreach (var m in machines)
                     {
+                        if (!SendService.SendService.trackers.ContainsKey(m.Id))
+                            SendService.SendService.trackers[m.Id] = new MachineStatusTracker();
+
                         var metrics = _monitor.ColetarMetricas(m);
+
+                        SendService.SendService.trackers[metrics.Id].RegisterCheck(metrics, new TimeSpan(0, 0, intervalo));
+                        var tracker = SendService.SendService.trackers[m.Id];
+
+                        metrics.LastCheck = tracker.GetLastCheck();
+                        metrics.UptimePercent = tracker.GetUptimePercent();
+                        metrics.DowntimeMinutes = tracker.GetDowntimeMinutes();
+                        metrics.SlaPercent = 0;
+
                         _cache.UpdateMetrics(metrics, index++);
 
-                        if (m.TipoMonitoramento == TipoMonitoramento.PING)
-                            Logger.Info($"[{m.Nome}] Tipo: PING, Status={metrics.Status}, Perda={metrics.PerdaPacotes:F1}%, Latência={metrics.PingMs:F1}ms");
-                        else
-                            Logger.Info($"[{m.Nome}] Tipo: SNMP, Status={metrics.Status}, CPU={metrics.CpuPercent:F1}%, RAM={metrics.RamPercent:F1}%, Disk={metrics.DiskPercent:F1}%");
 
+                        if (m.TipoMonitoramento == TipoMonitoramento.PING)
+                            Logger.Info($"[{m.Nome}] Type: ping, Status={metrics.Status}, Packet_Loss={metrics.PacketLoss:F1}%, Latency={metrics.Latency:F1}ms Uptime={metrics.UptimePercent:F1}% Downtime={metrics.DowntimeMinutes:F1}min Last_Check={metrics.LastCheck:F1}");
+                        else
+                            Logger.Info($"[{m.Nome}] Type: snmp, Status={metrics.Status}, CPU={metrics.CpuPercent:F1}%, RAM={metrics.RamPercent:F1}%, Disk={metrics.DiskPercent:F1}%  Uptime={metrics.UptimePercent:F1}% Downtime={metrics.DowntimeMinutes:F1}min Last_Check={metrics.LastCheck:F1}");
                     }
+
+                    _ = SendService.SendService.SendToServer(_cache.GetAllMetrics().Where(x => x.Syncronized).ToList());
                 }
                 catch (Exception ex)
                 {
                     Logger.Error($"Erro no loop de coleta: {ex.Message}");
                 }
 
-                _ = SendService.SendService.SendToServer(_cache.GetAllMetrics());
                 await Task.Delay(intervalo * 1000, stoppingToken);
             }
         }
@@ -62,7 +76,7 @@ namespace IWAServer.Services
 
     public class SendBady
     {
-        public string Status { get; set; } = "Offline";
+        public string Status { get; set; } = "down";
         public double ram { get; set; } = -1;
         public double cpu { get; set; } = -1;
         public double disk { get; set; } = -1;

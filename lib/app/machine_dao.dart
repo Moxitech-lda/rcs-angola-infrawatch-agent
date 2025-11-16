@@ -215,7 +215,7 @@ class MachineDAO {
 }
 
 Future<bool> sendMetric(BuildContext context) async {
-  final tokem = '32d667f0-8879-48a1-9087-8bf7e79bbc09';
+  final tokem = 'INFRAOJQZA05';
   try {
     final response = await http.patch(
       Uri.parse(
@@ -228,7 +228,7 @@ Future<bool> sendMetric(BuildContext context) async {
       },
 
       body: jsonEncode({
-        'system_id': '32d667f0-8879-48a1-9087-8bf7e79bbc09',
+        'system_id': '7159af89-6513-4b76-93a3-99d94bee7d04',
         'status': 'up',
         'uptime_percent': 100,
         'downtime_minutes': 100,
@@ -245,6 +245,8 @@ Future<bool> sendMetric(BuildContext context) async {
     );
     print(response.statusCode);
     if (response.statusCode == 201) {
+      final data = jsonDecode(response.body);
+      print(data);
       return true;
     } else {
       final data = jsonDecode(response.body);

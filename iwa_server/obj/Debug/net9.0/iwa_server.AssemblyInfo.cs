@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("iwa_server")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d0a4c912d580ef1080f2957a7ae8afd089d64c79")]
 [assembly: System.Reflection.AssemblyProductAttribute("iwa_server")]
 [assembly: System.Reflection.AssemblyTitleAttribute("iwa_server")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
